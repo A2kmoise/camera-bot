@@ -1,0 +1,21 @@
+.venv/
+__pycache__/
+*.pyc
+
+# ArcFace ONNX model (downloaded during setup, not committed)
+models/*.onnx
+buffalo_l.zip
+*.onnx
+
+# Local Wi-Fi and broker credentials for the ESP8266 sketch
+firmware/face_center_stepper/secrets.h
+
+# Personal biometric data: aligned enrollment crops and the enrollment DB
+# (embeddings + face images of real people must never be committed)
+data/enroll/*
+!data/enroll/.gitkeep
+data/db/*
+!data/db/.gitkeep
+
+# Debug artifacts
+data/debug_aligned/
