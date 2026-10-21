@@ -1,0 +1,87 @@
+# ==============================================================================
+# Person Tracking & Face Association Configuration
+# ==============================================================================
+
+# System & Reproducibility
+seed: 42
+device: "cpu" # Enforce CPU-only execution
+
+# Camera & Capture
+capture:
+  camera_id: 0
+  width: 640
+  height: 480
+  target_fps: 30
+
+# Person Detection & Tracking
+detector:
+  backend: "yolo" # "yolo" (Ultralytics YOLOv8n + ByteTrack) or "hog" (OpenCV HOG + IoU)
+  model_path: "models/yolov8n.pt"
+  tracker_config: "bytetrack.yaml"
+  person_class_id: 0
+  conf_threshold: 0.40
+  iou_threshold: 0.50
+  detect_interval: 2 # Run heavy detection every N frames; tracker updates in between
+  track_lost_frames: 30 # Disappear timeout (frames) before deleting track identity
+
+# Face Detection & Recognition
+face:
+  yunet_model_path: "models/face_detection_yunet_2023mar.onnx"
+  sface_model_path: "models/face_recognition_sface_2021dec.onnx"
+  score_threshold: 0.60
+  nms_threshold: 0.30
+  top_k: 5000
+  min_face_size: 20 # Minimum face width/height in pixels
+  match_threshold: 0.363 # SFace recommended cosine similarity threshold
+  enrolled_dir: "data/enrolled"
+  enroll_samples: 20
+
+# Face-to-Body Mapper
+mapper:
+  upper_body_ratio: 0.40 # Face center must be in top 40% of body box
+  min_face_width_ratio: 0.12 # Face width / body width min plausibility
+  max_face_width_ratio: 0.65 # Face width / body width max plausibility
+  min_assignment_score: 0.40 # Reject global assignment if score below threshold
+  overlap_iou_threshold: 0.25 # Overlap IoU between two bodies to flag ambiguous
+  ambiguous_penalty: 0.05 # Confidence penalty when bodies overlap ambiguously
+  weights:
+    containment: 0.35
+    horizontal: 0.35
+    size: 0.20
+    vertical: 0.10
+
+# Three-State Identity Machine
+identity:
+  half_life_s: 2.0 # T_half in seconds: conf(t) = conf_seen * exp(-ln(2)*(t - t_seen)/T_half)
+  confidence_floor: 0.30 # Temporary -> Unknown when confidence drops below this floor
+  hysteresis_k: 2 # Consecutive matching frames needed to promote Unknown -> Confirmed
+  ambiguous_decay_multiplier: 1.5 # Optional extra decay rate while ambiguous overlap without face
+
+# Simulated Virtual-Pan Centring Controller
+centring:
+  target_name: "" # Default target identity to center (empty = first confirmed or tracked)
+  kp: 1.5 # Proportional gain: pan_cmd = Kp * err
+  deadband: 0.03 # Normalized error deadband (|err| < deadband -> 0)
+  pan_max: 30.0 # Maximum command velocity (deg/s)
+  max_angle: 45.0 # Max simulated pan angle limit (+/- deg)
+  smoothing_alpha: 0.35 # Exponential smoothing filter weight for pan command
+
+# Overlay & Visualization
+overlay:
+  show_debug: false
+  show_fps: true
+  show_virtual_pan: true
+  box_thickness: 2
+  font_scale: 0.55
+  colors:
+    confirmed: [0, 220, 0] # BGR Green
+    temporary: [0, 165, 255] # BGR Amber
+    unknown: [140, 140, 140] # BGR Slate Grey
+    target_crosshair: [0, 255, 255] # BGR Yellow
+    ambiguous_badge: [0, 0, 255] # BGR Red
+
+# Logging & Storage Paths
+logging:
+  log_dir: "logs"
+  video_dir: "videos"
+  report_dir: "reports"

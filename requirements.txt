@@ -1,31 +1,11 @@
-# Core pipeline dependencies (as specified in the practical's study material).
+# Core Dependencies for Person Tracker with 3-State Identity Continuity
+# Python 3.10+, CPU-only execution
+
 opencv-python==4.11.0.86
 numpy==1.26.4
-onnxruntime==1.23.2
 scipy==1.17.1
-tqdm==4.70.1
-mediapipe==0.10.21
-paho-mqtt==2.1.0
-pyobjc-core>=10.0; sys_platform == "darwin"
-
-# --- Notes on the exact pins above ---
-#
-# onnxruntime 1.23.2 provides a CPython 3.11 macOS x86_64 wheel; pip could not
-# resolve 1.30.0 for the Mac environment used for this working copy.
-# numpy<2 is required by mediapipe==0.10.21 (the pinned version still shipping the
-# legacy `mediapipe.solutions.face_mesh` API this project uses for 5-point landmarks).
-# opencv-python must therefore stay on the 4.x line (5.x hard-requires numpy>=2);
-# 4.11.0.86 is the version validated with this project.
-#
-# `pip install -r requirements.txt` alone will also try to pull mediapipe's optional
-# extras (jax, jaxlib, matplotlib, opencv-contrib-python, sentencepiece, sounddevice)
-# that are unused by mediapipe.solutions.face_mesh for this pipeline (they back other
-# mediapipe features: GPU/learning tasks, plotting-heavy drawing_utils, extra detectors,
-# text tasks, audio tasks) except matplotlib, which the solutions API imports eagerly
-# at import time (mediapipe.python.solutions.drawing_utils) even though this project
-# never calls a drawing function. See the README/instructions for the exact two-step
-# install that installs only what's actually needed:
-#
-#   pip install opencv-python==4.11.0.86 numpy==1.26.4 onnxruntime==1.23.2 scipy==1.17.1 tqdm==4.70.1 paho-mqtt==2.1.0
-#   pip install --no-deps mediapipe==0.10.21
-#   pip install "protobuf>=4.25.3,<5" attrs absl-py matplotlib flatbuffers packaging
+pandas==3.0.6
+matplotlib==3.11.2
+PyYAML==6.0.3
+pytest==9.1.1
+ultralytics>=8.0.0
